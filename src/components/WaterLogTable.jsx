@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Trash2 } from "lucide-react";
 import axiosInstance from "../axiosInstance";
+import { saveAs } from "file-saver";
 
 const WaterLogTable = ({ refresh }) => {
-  const [waterLogs, setWaterLogs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+    const [waterLogs, setWaterLogs] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  const fetchWaterLogs = async () => {
+    const fetchWaterLogs = async () => {
     try {
       setLoading(true);
       const response = await axiosInstance.get("/water-logs", {
@@ -23,11 +24,11 @@ const WaterLogTable = ({ refresh }) => {
     }
   };
 
-  useEffect(() => {
+    useEffect(() => {
     fetchWaterLogs();
   }, [refresh]); // Refetch whenever 'refresh' changes
 
-const handleDeleteLog = async (id) => {
+    const handleDeleteLog = async (id) => {
     if (window.confirm("Are you sure you want to delete this log?")) {
       try {
         // Call the delete API
@@ -45,8 +46,26 @@ const handleDeleteLog = async (id) => {
         alert("Failed to delete the log. Please try again.");
       }
     }
+
+
+    
   };
-  
+  const handleExport = async () => {
+    try {
+      const response = await axiosInstance.get("water-logs/export-water-logs-excel", { responseType: "blob",headers: {Authorization: `Bearer ${localStorage.getItem("token")}`}});
+
+      // Determine file name and type
+      const fileType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+      const fileName = "water-logs.xlsx";
+
+      // Save the file using file-saver
+      const blob = new Blob([response.data], { type: fileType });
+      saveAs(blob, fileName);
+    } catch (err) {
+      console.error("Failed to export logs:", err);
+      alert("An error occurred while exporting logs.");
+    }  
+}
   return (
     <motion.div
       className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700 mb-8"
@@ -56,7 +75,12 @@ const handleDeleteLog = async (id) => {
     >
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-gray-100">Water Logs</h2>
-      </div>
+        <button
+        className="bg-blue-800 text-white  text-sm px-2 py-1 rounded-md hover:bg-blue-600"
+        onClick={() => handleExport()}>
+            Download Excel Report
+        </button>
+        </div>
       <div className="overflow-x-auto">
         {loading ? (
           <p className="text-center text-gray-400">Loading...</p>

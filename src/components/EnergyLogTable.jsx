@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Trash2 } from "lucide-react";
 import axiosInstance from "../axiosInstance";
+import { saveAs } from "file-saver";
 
 const EnergyLogTable = ({ logs, setLogs }) => {
   const handleDeleteLog = async (id) => {
@@ -22,6 +23,23 @@ const EnergyLogTable = ({ logs, setLogs }) => {
       }
     }
   };
+  const handleExport = async () => {
+    try {
+      const response = await axiosInstance.get("energy-logs/export-energy-logs-excel", { responseType: "blob",headers: {Authorization: `Bearer ${localStorage.getItem("token")}`}});
+
+      // Determine file name and type
+      const fileType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+      const fileName = "energy-logs.xlsx";
+
+      // Save the file using file-saver
+      const blob = new Blob([response.data], { type: fileType });
+      saveAs(blob, fileName);
+    } catch (err) {
+      console.error("Failed to export logs:", err);
+      alert("An error occurred while exporting logs.");
+    }  
+}
+
 
   return (
     <motion.div
@@ -32,6 +50,11 @@ const EnergyLogTable = ({ logs, setLogs }) => {
     >
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-gray-100">Energy Logs</h2>
+        <button
+        className="bg-blue-800 text-white  text-sm px-2 py-1 rounded-md hover:bg-blue-600"
+        onClick={() => handleExport()}>
+            Download Excel Report
+        </button>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-700">

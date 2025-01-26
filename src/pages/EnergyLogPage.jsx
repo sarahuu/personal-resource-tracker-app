@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
+import { Power } from "lucide-react";
+import { motion } from "framer-motion";
+import { useNavigate,useParams } from "react-router-dom";
 import Header from "../components/Header";
 import StatCard from "../components/StatCard";
 import EnergyLogTable from "../components/EnergyLogTable";
-import { Power } from "lucide-react";
-import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { useParams } from "react-router-dom";
 import axiosInstance from "../axiosInstance";
 
 const EnergyLogPage = () => {
@@ -24,6 +23,26 @@ const EnergyLogPage = () => {
   const [logs, setLogs] = useState([]); // State for energy logs
   const { username: urlUsername } = useParams();
   const navigate = useNavigate();
+  const fetchStats = async () => {
+    try {
+    const response = await axiosInstance.get("/energy-logs/summary", {
+        headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+  });
+
+  // Update state with API data
+  setStats({
+    daily: response.data.today,
+    weekly: response.data.this_week,
+    monthly: response.data.this_month,
+  });
+    } catch (error) {
+    console.error("Error fetching stats:", error);
+    alert("Failed to load stats.");
+    }
+};
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -52,25 +71,6 @@ const EnergyLogPage = () => {
       }
     };
 
-    const fetchStats = async () => {
-        try {
-        const response = await axiosInstance.get("/energy-logs/summary", {
-            headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-      });
-
-      // Update state with API data
-      setStats({
-        daily: response.data.today,
-        weekly: response.data.this_week,
-        monthly: response.data.this_month,
-      });
-        } catch (error) {
-        console.error("Error fetching stats:", error);
-        alert("Failed to load stats.");
-        }
-    };
 
     fetchStats();
 
@@ -130,9 +130,9 @@ const EnergyLogPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
         >
-          <StatCard name="Quantity Used Today (kwh)" icon={Power} value={stats.daily} color="#3B82F6" />
-          <StatCard name="Quantity Used This Week (kwh)" icon={Power} value={stats.weekly} color="#6EE787" />
-          <StatCard name="Quantity Used This Month (kwh)" icon={Power} value={stats.monthly} color="#10B981" />
+          <StatCard name="Quantity Used Today (kwh)" icon={Power} value={stats.daily.toFixed(2)} color="#3B82F6" />
+          <StatCard name="Quantity Used This Week (kwh)" icon={Power} value={stats.weekly.toFixed(2)} color="#6EE787" />
+          <StatCard name="Quantity Used This Month (kwh)" icon={Power} value={stats.monthly.toFixed(2)} color="#10B981" />
         </motion.div>
         <button
           className="px-6 py-3 bg-blue-800 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 mb-5"

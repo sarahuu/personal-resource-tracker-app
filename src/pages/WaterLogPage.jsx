@@ -1,7 +1,5 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { GlassWater } from "lucide-react";
 import Header from "../components/Header";
 import WaterLogTable from "../components/WaterLogTable";
@@ -25,8 +23,25 @@ const WaterLogPage = () => {
   
     const { username: urlUsername } = useParams();
     const navigate = useNavigate();
-    const [refreshTable, setRefreshTable] = useState(false); // State to trigger table refresh
-  
+    const [refreshTable, setRefreshTable] = useState(false);
+    const fetchStats = async () => {
+        try {
+        const response = await axiosInstance.get("/water-logs/summary", {
+            headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+      });
+
+      setStats({
+        daily: response.data.today,
+        weekly: response.data.this_week,
+        monthly: response.data.this_month,
+      });
+        } catch (error) {
+        console.error("Error fetching stats:", error);
+        alert("Failed to load stats.");
+        }
+  };
     useEffect(() => {
         const token = localStorage.getItem("token");
             if (!token) {
@@ -51,25 +66,6 @@ const WaterLogPage = () => {
             }
         };
 
-        const fetchStats = async () => {
-            try {
-            const response = await axiosInstance.get("/water-logs/summary", {
-                headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-          });
-  
-          // Update state with API data
-          setStats({
-            daily: response.data.today,
-            weekly: response.data.this_week,
-            monthly: response.data.this_month,
-          });
-            } catch (error) {
-            console.error("Error fetching stats:", error);
-            alert("Failed to load stats.");
-            }
-      };
   
         fetchStats();
         verifyToken();
@@ -89,7 +85,8 @@ const WaterLogPage = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
         setIsModalOpen(false);
-        setRefreshTable((prev) => !prev); // Toggle state to refresh table
+        fetchStats();
+        setRefreshTable((prev) => !prev);
       } catch (error) {
         console.error("Error submitting water log:", error);
         alert("There was an error submitting the water log. Please try again.");
@@ -101,9 +98,9 @@ const WaterLogPage = () => {
         <Header title="Water Logs" />
         <main className="max-w-7xl mx-auto py-6 px-4 lg:px-8 xl:px-20">
           <motion.div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
-            <StatCard name="Qty Used Today (litres)" icon={GlassWater} value={stats.daily} color="#3B82F6" />
-            <StatCard name="Qty Used This Week (litres)" icon={GlassWater} value={stats.weekly} color="#6EE787" />
-            <StatCard name="Qty Used This Month (litres)" icon={GlassWater} value={stats.monthly} color="#10B981" />
+            <StatCard name="Qty Used Today (litres)" icon={GlassWater} value={stats.daily.toFixed(2)} color="#3B82F6" />
+            <StatCard name="Qty Used This Week (litres)" icon={GlassWater} value={stats.weekly.toFixed(2)} color="#6EE787" />
+            <StatCard name="Qty Used This Month (litres)" icon={GlassWater} value={stats.monthly.toFixed(2)} color="#10B981" />
           </motion.div>
           <button
             className="px-6 py-3 bg-blue-800 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 mb-5"
@@ -112,7 +109,6 @@ const WaterLogPage = () => {
             Add a Log
           </button>
   
-          {/* Pass refresh trigger to WaterLogTable */}
           <WaterLogTable refresh={refreshTable} />
   
           {/* Modal */}

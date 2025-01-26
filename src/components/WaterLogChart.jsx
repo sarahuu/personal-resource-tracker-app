@@ -4,36 +4,33 @@ import { useState, useEffect } from "react";
 import axiosInstance from "../axiosInstance";
 
 const WaterLogChart = () => {
-  const [filter, setFilter] = useState("week"); // Filter state: "daily" or "monthly"
-  const [waterLogData, setWaterLogData] = useState([]); // Data for the chart
-  const [loading, setLoading] = useState(false); // Loading state
-  const [error, setError] = useState(null); // Error state
+  const [filter, setFilter] = useState("week");
+  const [waterLogData, setWaterLogData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Function to fetch data from the API
   const fetchData = async () => {
-    setLoading(true); // Set loading to true
-    setError(null); // Reset error state
+    setLoading(true);
+    setError(null);
 
     try {
       const response = await axiosInstance.get(
         `/water-logs/logs-by-${filter}`,
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
-      setWaterLogData(response.data); // Update state with the fetched data
+      setWaterLogData(response.data);
     } catch (err) {
       console.error("Failed to fetch data:", err);
       setError("Failed to load water logs. Please try again.");
     } finally {
-      setLoading(false); // Set loading to false
+      setLoading(false);
     }
   };
 
-  // Fetch data when the component mounts or the filter changes
   useEffect(() => {
     fetchData();
   }, [filter]);
 
-  // Handle dropdown change
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
   };

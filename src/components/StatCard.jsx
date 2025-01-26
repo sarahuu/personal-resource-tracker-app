@@ -1,4 +1,6 @@
 import { motion } from "framer-motion";
+
+
 const StatCard = ({name, icon:Icon, value, color}) => {
     const isComingSoon = value === "Coming Soon...";
     return (

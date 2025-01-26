@@ -6,35 +6,33 @@ import axiosInstance from "../axiosInstance";
 const COLORS = ["#6366F1", "#885CF6", "#EC4899", "#108981", "#F59E00"];
 
 const WaterCategoryChart = () => {
-  const [filter, setFilter] = useState("week"); // Filter state: "week" or "month"
-  const [categoryData, setCategoryData] = useState([]); // Data for the chart
-  const [loading, setLoading] = useState(false); // Loading state
-  const [error, setError] = useState(null); // Error state
+  const [filter, setFilter] = useState("week");
+  const [categoryData, setCategoryData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Function to fetch data from the API
   const fetchData = async () => {
-    setLoading(true); // Set loading to true
-    setError(null); // Reset error state
+    setLoading(true);
+    setError(null);
 
     try {
       const response = await axiosInstance.get(`/water-logs/logs-by-${filter}?pie=True`
         , {headers: {Authorization: `Bearer ${localStorage.getItem("token")}`,}}
       );
-      setCategoryData(response.data); // Update state with the fetched data
+      setCategoryData(response.data);
     } catch (err) {
       console.error("Failed to fetch data:", err);
       setError("Failed to load water usage data. Please try again.");
     } finally {
-      setLoading(false); // Set loading to false
+      setLoading(false);
     }
   };
 
-  // Fetch data when the component mounts or the filter changes
   useEffect(() => {
     fetchData();
   }, [filter]);
 
-  // Handle dropdown change
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
   };

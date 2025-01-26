@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import axiosInstance from "../axiosInstance";
 
 const EnergyLogChart = () => {
-  const [filter, setFilter] = useState("week"); // Filter state: "daily" or "monthly"
-  const [energyLogData, setEnergyLogData] = useState([]); // Data for the chart
-  const [loading, setLoading] = useState(false); // Loading state
-  const [error, setError] = useState(null); // Error state
+  const [filter, setFilter] = useState("week"); 
+  const [energyLogData, setEnergyLogData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Function to fetch data from the API
   const fetchData = async () => {
@@ -19,21 +19,19 @@ const EnergyLogChart = () => {
         `/energy-logs/logs-by-${filter}`,
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
-      setEnergyLogData(response.data); // Update state with the fetched data
+      setEnergyLogData(response.data);
     } catch (err) {
       console.error("Failed to fetch data:", err);
       setError("Failed to load energy logs. Please try again.");
     } finally {
-      setLoading(false); // Set loading to false
+      setLoading(false);
     }
   };
 
-  // Fetch data when the component mounts or the filter changes
   useEffect(() => {
     fetchData();
   }, [filter]);
 
-  // Handle dropdown change
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
   };
