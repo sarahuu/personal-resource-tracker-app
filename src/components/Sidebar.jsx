@@ -7,7 +7,7 @@ const Sidebar = ({ username }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const SIDEBAR_ITEMS = [
-    { name: "Dashboard", icon: BarChart2, color: "#6366f1", href: `/dashboard/${username}` },
+    { name: "Dashboard", icon: BarChart2, color: "#6366f1", href: `/${username}` },
     { name: "Water Logs", icon: GlassWater, color: "#3B82F6", href: `/water-logs/${username}` },
     { name: "Energy Logs", icon: PowerIcon, color: "#6EE787", href: `/energy-logs/${username}` },
     { name: "Logout", icon: LogOutIcon, color: "#FF0000", href: '/logout' },

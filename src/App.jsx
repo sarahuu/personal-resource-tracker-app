@@ -31,7 +31,11 @@ function App() {
         <Routes>
           {/* Wrap components needing username */}
           <Route
-            path="/dashboard/:username"
+            path="/"
+            element={<RouteWithSidebar component={DashboardPage} />}
+          />
+          <Route
+            path="/:username"
             element={<RouteWithSidebar component={DashboardPage} />}
           />
           <Route

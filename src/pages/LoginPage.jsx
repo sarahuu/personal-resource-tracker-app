@@ -21,7 +21,7 @@ const LoginPage = () => {
       });
       localStorage.setItem("token", response.data.access_token);
       const v_username = response.data.username;
-      navigate(`/dashboard/${v_username}`);
+      navigate(`/${v_username}`);
     } catch (err) {
       setError(err.response?.data?.message || "Login failed. Please try again.");
     } finally {
